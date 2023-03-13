@@ -1,0 +1,21 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: nsth-juice-shop
+  namespace: aqua-policy-demo
+  labels:
+    app: nsth-juice-shop
+    app.kubernetes.io/component: nsth-juice-shop
+    app.kubernetes.io/instance: nsth-juice-shop
+    app.kubernetes.io/name: nsth-juice-shop
+spec:
+  ipFamilies:
+    - IPv4
+  ports:
+    - name: 3000-tcp
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
+  selector:
+    app: nsth-juice-shop
+    deployment: nsth-juice-shop

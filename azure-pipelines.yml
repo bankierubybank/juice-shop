@@ -1,0 +1,65 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - master
+
+stages:
+  - stage: CI
+    pool:
+      # Use self-hosted agent to run pipeline
+      # https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/pool?view=azure-pipelines
+      # https://learn.microsoft.com/en-us/training/modules/host-build-agent/2-choose-a-build-agent
+      # name: 'Azure-DO-Self-Hosted'
+      # demands:
+      #   - Agent.Type -equals Linux # equals check for Agent.Type Linux; NOTE - This is user-defined capability
+      vmImage: ubuntu-latest # Name of the VM image you want to use; valid only in the Microsoft-hosted pool.
+    jobs:
+      # - job: CPSpectral
+      #   steps:
+      #     - script: curl -L 'https://spectral-us.checkpoint.com/latest/x/sh?dsn=$(SPECTRAL_DSN)' | sh
+      #       displayName: 'Install Spectral'
+      #     - script: $HOME/.spectral/spectral scan --ok --dsn $(SPECTRAL_DSN)  --include-tags base,audit3,iac
+      #       displayName: 'Spectral Scan'
+      - job: SASTScan
+        steps:
+        - task: DownloadSecureFile@1
+          name: caCertificate
+          displayName: 'Download CA certificate'
+          inputs:
+            secureFile: 'SSC.crt'
+        - task: CmdLine@2
+          inputs:
+            script: |
+              ls -l
+              echo Installing $(caCertificate.secureFilePath) to the trusted CA directory...
+              chown root:root $(caCertificate.secureFilePath)
+              chmod a+r $(caCertificate.secureFilePath)
+              ln -s $(caCertificate.secureFilePath) /etc/ssl/certs/
+              ls -l /etc/ssl/certs/ | grep SSC.crt
+              keytool -import -trustcacerts -alias SSC -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit -noprompt -file /etc/ssl/certs/SSC.crt
+      # - job: AquaScan
+      #   container:
+      #     image: aquasec/aqua-scanner
+      #     env:
+      #       AQUA_KEY: $(AQUA_KEY)
+      #       AQUA_SECRET: $(AQUA_SECRET)
+      #       TRIVY_RUN_AS_PLUGIN: aqua
+      #   steps:
+      #     - script: |
+      #         trivy fs --security-checks config,vuln,secret --sast --dotnet-proj .
+      #         # To customize which severities to scan for, add the following flag: --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+      #         # To enable SAST scanning, add: --sast
+      #         # To enable npm/dotnet non-lock file scanning, add: --package-json / --dotnet-proj
+      # - job: BuildAndPush
+      #   timeoutInMinutes: 180 # how long to run the job before automatically cancelling
+      #   steps:
+      #     - task: Docker@2
+      #       inputs:
+      #         containerRegistry: 'chatchai-docker-hub'
+      #         repository: 'bankierubybank/juice-shop'
+      #         command: 'buildAndPush'
+      #         Dockerfile: '**/Dockerfile'
+      #         tags: 'latest'
