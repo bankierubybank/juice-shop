@@ -7,7 +7,7 @@ pipeline {
     environment {
         // SCM: Git URL
         APP_REPOSITORY = 'https://github.com/bankierubybank/juice-shop.git'
-        BRANCH_NAME = 'master'
+        BRANCH_NAME = 'main'
 
         // Sonatype Nexus RM Docker Registry Configuration
         DOCKER_REPOSITORY_HOST = credentials('DOCKER_HOSTED_NEXUS_HOST')
