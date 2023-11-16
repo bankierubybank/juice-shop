@@ -10,10 +10,10 @@ RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools
 
 #Set Registry to Nexus Repo
-RUN npm config set strict-ssl false
-RUN npm config set registry https://nexus.devops.demo/repository/npm-proxy/
-RUN npm config set always-auth=true
-RUN npm config set _auth ${NEXUS_AUTH}
+# RUN npm config set strict-ssl false
+# RUN npm config set registry https://nexus.nsth.net/repository/npm-proxy/
+# RUN npm config set always-auth=true
+# RUN npm config set _auth ${NEXUS_AUTH}
 
 RUN npm i -g typescript ts-node
 RUN npm install --omit=dev --unsafe-perm
